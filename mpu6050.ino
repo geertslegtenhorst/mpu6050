@@ -9,7 +9,7 @@ long X, Y;                              //variablen voor hoek X en hoek Y
 Servo servo_links, servo_rechts;        //servo_links en rechts
 int chA = 9;                            //kanaal A, voor de manuel / autopilot mode switch
 int chB = 11;                           //kanaal B voor hoogte
-int chB = 12;                           // kanaal C voor de richting
+int chC = 12;                           // kanaal C voor de richting
 int chA_data, chB_data, chC_data;       //variablen die de waarden van de kanalen opslaan
 
 
@@ -99,18 +99,21 @@ void read_data(){                                        //functie om de waarden
   GyY=Wire.read()<<8|Wire.read();                        //sla de waarden op in gYZ en zet het om van 2 8 bits waarden naar 1 16 bit waarde
   GyZ=Wire.read()<<8|Wire.read();                        //sla de waarden op in gyZ en zet het om van 2 8 bits waarden naar 1 16 bit waarde
   
-  double dt = (double)(micros() - timer) / 1000000; 
-  timer = micros(); 
-  double roll = atan2(AcY, AcZ)*degconvert;
+  double dt = (double)(micros() - timer) / 1000000;      // de tijd voor deze metingen = de tijd tot nu toe - de tijd voor de berekingen
+  timer = micros();                                      //hersart de timer
+  double roll = atan2(AcY, AcZ)*degconvert;              //functie om de vectoren van de acc. sensor op te tellen en er graden van te maken
   double pitch = atan2(-AcX, AcZ)*degconvert;
 
   
-  double gyroXrate = GyX/131.0;
+  double gyroXrate = GyX/131.0;                           ////de gyro sensor geeft een waarde van 131 graden/s
   double gyroYrate = GyY/131.0;
 
-  compAngleX = 0.99 * (compAngleX + gyroXrate * dt) + 0.01 * roll; 
+  compAngleX = 0.99 * (compAngleX + gyroXrate * dt) + 0.01 * roll;      /*compAngleX neemt een deel van elke sensor voor nauwkeurige 
+  metingen. 0.99 van (de compAngleX(in het begin 0 om zo elke keer te zien hoeveel de vorige waarde was) + de waarde van de gyro 
+  sensor * de tijd) + 0.01 van de acc. sensor */
+  
   compAngleY = 0.99 * (compAngleY + gyroYrate * dt) + 0.01 * pitch; 
-  double compAngleX_val = compAngleX - X;
-  double compAngleY_val = compAngleY - Y;
+  double compAngleX_val = compAngleX - X;                               //compAngleX - de callibratie waarde
+  double compAngleY_val = compAngleY - Y;                               //compAngleX - de callibratie waarde
   
   
